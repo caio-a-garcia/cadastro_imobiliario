@@ -1,0 +1,17 @@
+# Cadastro Imobiliario
+
+Esse projeto tem propósito primariamente didático. Seu objetivo é demonstrar prática com Orientação a Objeto e outros conceitos básicos em Python. Por esse motivo a documentação pretende ser focada no processo de desenvolvimento, em contraste com o foco usual em usabilidade do código.
+
+## Premissas
+
+O entregável do projeto implementa um sistema de cadastro de imóveis e registro de contratos de aluguel. Um sistema de autenticação é tambem parte das especificações. Enquanto a forma de autenticação implementada aqui não tem pretenção de ser apropriada para produção (em termos de segurança e eficiência, por exemplo), ela busca manter uma boa experiência de usuário, dentro dos limites da interface usada em cada fase.
+
+## Processo
+1) Definir como serão agrupadas as informações coletadas
+    - Os itens a serem modelados são:
+      * Imóvel: ID, logradouro, CEP, bairro, cidade
+      * Inquilino/Proprietario: ID, nome, data de nascimento
+      * Aluguel: ID, Imovel, Inquilino
+    - A primeira tentativa de modelar esses dados foi feita com uma classe para cada um dos itens acima
+
+2) 
