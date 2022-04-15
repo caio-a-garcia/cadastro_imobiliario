@@ -1,14 +1,6 @@
 #! python3
 # cadastro_imobiliario/model.py
 
-from secrets import choice
-from string import ascii_letters, digits
-
-
-def generateID():
-    return "".join(choice(ascii_letters + digits) for _ in range(16))
-
-
 class Imovel:
     def __init__(self, logradouro, cep, bairro, cidade, id):
         self.logradouro = logradouro
@@ -42,18 +34,18 @@ class Individuo:
         }
         return mapa
 
+class Aluguel:
+    def __init__(self, id_imovel, id_proprietario, id):
+        self.id_imovel = id_imovel
+        self.id_proprietario = id_proprietario
+        self.id = id
 
-# class Aluguel:
-#     def __init__(self, imovel_id, inquilino, proprietario, id):
-#         self.imovel = imovel_id
-#         self.inquilino_id = inquilino.id
-#         self.proprietario_id = proprietario.id
-#         self.id = id
+    def resumo(self):
+        mapa = {
+            "id imovel": self.id_imovel,
+            "id proprietario": self.id_proprietario,
+            "id": self.id,
+        }
+        return mapa
 
-#     def resumo_ids(self):
-#         mapa = {
-#             "imovel": self.imovel,
-#             "inquilino": self.inquilino_id,
-#             "proprietario": self.proprietario_id,
-#             "aluguel_id": self.id,
-#         }
+    # TODO: implementar resumo de Aluguel. Pensando passar nome do proprietario e alguma informacao do imovel como argumento do init para deixar a logica de buscar essas infos fora do modelo
