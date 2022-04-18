@@ -48,4 +48,16 @@ class Aluguel:
         }
         return mapa
 
-    # TODO: implementar resumo de Aluguel. Pensando passar nome do proprietario e alguma informacao do imovel como argumento do init para deixar a logica de buscar essas infos fora do modelo
+class Contrato:
+    def __init__(self, id_aluguel, id_inquilino, id):
+        self.id_aluguel = id_aluguel
+        self.id_inquilino = id_inquilino
+        self.id = id
+
+    def resumo(self):
+        mapa = {
+            "id aluguel": self.id_aluguel,
+            "id inquilino": self.id_inquilino,
+            "id": self.id
+        }
+        return mapa

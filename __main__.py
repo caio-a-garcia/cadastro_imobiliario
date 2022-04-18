@@ -2,25 +2,20 @@
 # -*- coding: latin-1 -*-
 # cadastro_imobiliario/__init__.py
 
-from model import Imovel, Individuo, Aluguel
+from model import Imovel, Individuo, Aluguel, Contrato
 from hashlib import sha512
 from getpass import getpass
 from pprint import pprint
 
-imoveis = [{'bairro': 'Centro',
-            'cep': '00000000',
-            'cidade': 'Udi',
-            'id': 0, 'logradouro':
-            'Rua Goias'}] # TODO: tirar item colocado para dev
+imoveis = []
 
-inquilinos = [{'data_de_nascimento': '19\\12\\1998',
-               'id': 0, 'nome': 'Caio'}]
+inquilinos = []
 
-proprietarios = [{'data_de_nascimento': '13/11/1969',
-                  'id': 0, 'nome': 'Augusto'}]
+proprietarios = []
 
 alugueis = []
-relacao_alugueis = []
+
+contratos = []
 
 def init_count(lista):
     if len(lista) > 0:
@@ -34,7 +29,7 @@ imoveis_count = init_count(imoveis)
 inquilinos_count = init_count(inquilinos)
 proprietarios_count = init_count(proprietarios)
 alugueis_count = init_count(alugueis)
-relacao_alugueis_count = init_count(relacao_alugueis)
+contratos_count = init_count(contratos)
 
 def login():
     usuario = 'caio.crud'
@@ -98,24 +93,38 @@ def cadastro(tipo):
 
     
     def cadastrar_aluguel(): 
-        print('Para descobrir os IDs de inquilino(s) e proprietário relevantes, use a função consulta')
+        print('Para descobrir os IDs de imóvel e proprietário relevantes, use a função consulta')
         id_imovel = -1
         id_proprietario = -1
         
         while True:
-            id_imovel = input('Digite o id do imóvel alugado: ')
+            id_imovel = input('''
+Digite o id do imóvel alugado.
+Enter sem input para sair: 
+''')
+            if id_imovel == '':
+                return False
+            
             consultar_por_id(imoveis, id_imovel)
             if not inteiro_ou_falso(id_imovel):
                 continue
+            
             confirma_imovel = input('O imóvel acima é o correto [s/n]: ')
             if confirma_imovel in ['s', 'S', 'sim', 'Sim']:
                 break
 
         while True:
-            id_proprietario = input('Digite o id do proprietario do imóvel: ')
+            id_proprietario = input('''
+Digite o id do proprietario do imóvel. 
+Enter sem input para sair: 
+''')
+            if id_proprietario == '':
+                return False
+
             consultar_por_id(proprietarios, id_proprietario)
             if not inteiro_ou_falso(id_proprietario):
                 continue
+            
             confirma_proprietario = input('O proprietario acima é o correto [s/n]: ')
             if confirma_proprietario in ['s', 'S', 'sim', 'Sim']:
                 break
@@ -124,7 +133,50 @@ def cadastro(tipo):
         id_aluguel = alugueis_count
         alugueis_count += 1
         return Aluguel(id_imovel, id_proprietario, id_aluguel)
+
+# cadastrar contrato
+    def cadastrar_contrato(): 
+        print('Para descobrir os IDs de inquilino e aluguel relevantes, use a função consulta')
+        id_inquilino = -1
+        id_aluguel = -1
         
+        while True:
+            id_inquilino = input('''
+Digite o id do inquilino.
+Enter sem input para sair: 
+''')
+            if id_inquilino == '':
+                return False
+            
+            consultar_por_id(inquilinos, id_inquilino)
+            if not inteiro_ou_falso(id_inquilino):
+                continue
+            
+            confirma_inquilino = input('O inquilino acima é o correto [s/n]: ')
+            if confirma_inquilino in ['s', 'S', 'sim', 'Sim']:
+                break
+
+        while True:
+            id_aluguel = input('''
+Digite o id do aluguel do aluguel. 
+Enter sem input para sair: 
+''')
+            if id_aluguel == '':
+                return False
+
+            consultar_por_id(alugueis, id_aluguel)
+            if not inteiro_ou_falso(id_aluguel):
+                continue
+            
+            confirma_aluguel = input('O aluguel acima é o correto [s/n]: ')
+            if confirma_aluguel in ['s', 'S', 'sim', 'Sim']:
+                break
+
+        global contratos_count
+        id_contrato = contratos_count
+        contratos_count += 1
+        return Contrato(id_aluguel, id_inquilino, id_contrato)
+
 
     if tipo == 'imovel':
         imovel = cadastrar_imovel()
@@ -137,7 +189,12 @@ def cadastro(tipo):
         proprietarios.append(proprietario.resumo())
     elif tipo == 'aluguel':
         aluguel = cadastrar_aluguel()
-        alugueis.append(aluguel.resumo())
+        if aluguel:
+            alugueis.append(aluguel.resumo())
+    elif tipo == 'contrato':
+        contrato = cadastrar_contrato()
+        if contrato:
+            contratos.append(contrato.resumo())
     else:
         raise ValueError('Argumento não suportado por função cadastro()')
 
@@ -149,6 +206,7 @@ O que você gostaria de cadastrar:
 2) Inquilino
 3) Proprietário
 4) Aluguel
+5) Contrato
 0) Sair
 
 '''
@@ -169,6 +227,8 @@ O que você gostaria de cadastrar:
             tipo_cadastro = 'proprietario'
         elif opcao == '4':
             tipo_cadastro = 'aluguel'
+        elif opcao == '5':
+            tipo_cadastro = 'contrato'
         else:
             print('Opção inválida. Selecione o número correspondente à sua opção.')
             continue
@@ -188,6 +248,7 @@ O que você gostaria de consultar:
 2) Inquilinos
 3) Proprietários
 4) Aluguéis
+5) Contratos
 0) Sair
 '''
     
@@ -210,6 +271,8 @@ Qual o campo a ser pesquisado:
 '''
 
     campos_aluguel = '2) ID\n'
+
+    campos_contrato = '2) ID\n'
     
     def consultar_item(lista, campo, valor):
         for item in lista:
@@ -234,7 +297,6 @@ Qual o campo a ser pesquisado:
     def consultar_alugueis():
         print('Aluguéis: ')
         for aluguel in alugueis:
-            print('Aluguel eh tipo ' + str(type(aluguel)))
             imovel = buscar_id_na_lista(imoveis, aluguel['id imovel'])
             proprietario = buscar_id_na_lista(proprietarios, aluguel['id proprietario'])
             endereco = ', '.join((imovel['logradouro'], imovel['cidade']))
@@ -247,15 +309,35 @@ Qual o campo a ser pesquisado:
             }
 
             pprint(mapa)
-                
 
+    
+    def consultar_contratos():
+        print('Contratos: ')
+        for contrato in contratos:
+            aluguel = buscar_id_na_lista(alugueis, contrato['id aluguel'])
+            inquilino = buscar_id_na_lista(inquilinos, contrato['id inquilino'])
+            proprietario = buscar_id_na_lista(proprietarios, aluguel['id proprietario'])
+            imovel = buscar_id_na_lista(imoveis, aluguel['id imovel'])
+            endereco = ', '.join((imovel['logradouro'], imovel['cidade']))
+            mapa = {
+                'id': contrato['id'],
+                'id inquilino': contrato['id inquilino'],
+                'inquilino': inquilino['nome'],
+                'id proprietario': aluguel['id proprietario'],
+                'proprietario': proprietario['nome'],
+                'id aluguel': aluguel['id'],
+                'endereço': endereco,
+            }
+
+            pprint(mapa)
+    
     def consultar_tudo():
         consultar_imoveis()
         consultar_inquilinos()
         consultar_proprietarios()
         consultar_alugueis()
         
-
+    # Consulta
     def menu_imoveis():
         campo = ''
         print(enunciado_campo)
@@ -286,7 +368,7 @@ Qual o campo a ser pesquisado:
                 else:
                     consultar_item(imoveis, campo, valor)
                 break
-
+    # Consulta
     def menu_inquilinos():
         campo = ''
         print(enunciado_campo)
@@ -313,7 +395,7 @@ Qual o campo a ser pesquisado:
                 else:
                     consultar_item(inquilinos, campo, valor)
                 break
-
+    # Consulta
     def menu_proprietarios():
         campo = ''
         print(enunciado_campo)
@@ -341,7 +423,7 @@ Qual o campo a ser pesquisado:
                     consultar_item(proprietarios, campo, valor)
                 break
 
-    
+    # Consulta
     def menu_alugueis():
         print(enunciado_campo)
         opcao = input(campos_aluguel)
@@ -357,7 +439,26 @@ Qual o campo a ser pesquisado:
                 break
             else:
                 print('Opção inválida. Selecione o número correspondente à sua opção.')
-        
+                # TODO: implementar outras opcoes de consulta para alugueis
+
+    # Consulta
+    def menu_contratos():
+        print(enunciado_campo)
+        opcao = input(campos_contrato)
+        while True:
+            if opcao == '0':
+                break
+            elif opcao == '1':
+                consultar_contratos()
+                break
+            if opcao == '2':
+                valor = input(f'Qual o id a ser procurado: \n')
+                consultar_por_id(proprietarios, valor)
+                break
+            else:
+                print('Opção inválida. Selecione o número correspondente à sua opção.')
+                # TODO: implementar outras opcoes de consulta para contratos
+    
     while True:
         opcao = input(enunciado_consulta)
         if opcao == '0':
@@ -370,6 +471,8 @@ Qual o campo a ser pesquisado:
             menu_proprietarios()
         elif opcao == '4':
             menu_alugueis()
+        elif opcao == '5':
+            menu_contratos()
         else:
             print('Favor escolher uma opção válida.')
             continue
@@ -382,6 +485,7 @@ def menu_apagar():
 2) Inquilinos
 3) Proprietários
 4) Aluguéis
+5) Contratos
 0) Sair
 '''
 
@@ -400,6 +504,8 @@ def menu_apagar():
                 lista = proprietarios
             elif opcao == '4':
                 lista = alugueis
+            elif opcao == '5':
+                lista = contratos
             else:
                 print('Opção inválida. Selecione o número correspondente à sua opção.')
                 continue
@@ -430,6 +536,7 @@ def menu_atualizar():
 2) Inquilinos
 3) Proprietários
 4) Aluguéis
+5) Contratos
 0) Sair
 '''
 
@@ -448,6 +555,8 @@ def menu_atualizar():
                 lista = proprietarios
             elif opcao == '4':
                 lista = alugueis
+            elif opcao == '5':
+                lista = contratos
             else:
                 print('Opção inválida. Selecione o número correspondente à sua opção.')
                 continue
@@ -459,6 +568,8 @@ def menu_atualizar():
 Digite o id do item a ser atualizado
 Enter sem input para sair
 ''')
+            campo = ''
+            novo_valor = ''
 
             if busca == '':
                 break
@@ -468,7 +579,6 @@ Enter sem input para sair
                 print('Favor passar um valor válido')
                 continue
             consultar_por_id(lista, valor)
-            # TODO: usar valor:id para achar item na lista
             while True:
                 campo = input('''Qual o campo a ser atualizado?
 Enter sem input para sair:
@@ -476,13 +586,22 @@ Enter sem input para sair:
 
                 if campo == '':
                     break
-                if not campo in lista:
+                if not campo in lista[0] or campo == 'id':
                     print('Favor escolher um campo válido')
                     continue
                 else:
                     novo_valor = input('Qual o novo valor do campo: ')
+                    break
+
+            if campo and novo_valor:
+                atualizacao = { campo: novo_valor }
+                for item in lista:
+                    if buscar_id_na_lista(lista, valor):
+                        item.update(atualizacao)
+                        break
+                consultar_por_id(lista, busca)
+                break
                     
-            # TODO: terminar menu_atualizar()
 
 def menu():
     enunciado = '''
@@ -504,7 +623,7 @@ Para escolher o que quer fazer, digite o número relacionado a sua opção:
         elif opcao == '2':
             menu_consulta()
         elif opcao == '3':
-            print('menu_atualizar()')
+            menu_atualizar()
         elif opcao == '4':
             menu_apagar()
         else:
@@ -512,10 +631,9 @@ Para escolher o que quer fazer, digite o número relacionado a sua opção:
     
 
 def start():
-    # while not login():
-    #     print('Falha na autenticação')
-    # print('Login bem sucedido')
-    # TODO: ativar login
+    while not login():
+        print('Falha na autenticação')
+    print('Login bem sucedido')
     menu()
 
 if __name__ == '__main__':
